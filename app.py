@@ -1,98 +1,86 @@
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
-import matplotlib
-import pickle
 
-matplotlib.use('Agg')
-
-# === SETUP ===
+# --- SETTINGS ---
 st.set_page_config(layout="wide")
-st.title("AI Matchmaker: ML-Based Area Fit for Your Food Brand")
+st.title("Kitchain AI Matcher")
 
-# === LOAD MODEL ===
-with open("kitchain_match_model.pkl", "rb") as f:
-    model = pickle.load(f)
+# --- LOAD MODEL ---
+@st.cache_resource
+def load_model():
+    return joblib.load("kitchain_match_model.joblib")
 
-# === UPLOAD FILES ===
-brands_file = st.file_uploader("Upload Brands File (Excel)", type=["xlsx"])
-areas_file = st.file_uploader("Upload Areas File (Excel)", type=["xlsx"])
+model = load_model()
 
-if brands_file and areas_file:
-    brands_df = pd.read_excel(brands_file)
-    areas_df = pd.read_excel(areas_file)
+# --- FILE UPLOAD ---
+brand_file = st.file_uploader("Upload Brand Data (Excel)", type=["xlsx"])
+area_file = st.file_uploader("Upload Area Data (Excel)", type=["xlsx"])
 
-    st.subheader("Select a Brand to Analyze")
-    brand_names = brands_df["Brand"].tolist()
-    selected_brand = st.selectbox("Choose a brand:", brand_names)
+if brand_file and area_file:
+    brand_df = pd.read_excel(brand_file)
+    area_df = pd.read_excel(area_file)
 
-    brand_row = brands_df[brands_df["Brand"] == selected_brand].iloc[0]
+    selected_brand = st.selectbox("Select a Brand:", brand_df["Brand"].unique())
+    brand_row = brand_df[brand_df["Brand"] == selected_brand].iloc[0]
 
-    # Prepare features for prediction
-    results = []
-    progress_bar = st.progress(0)
+    st.markdown("---")
+    st.subheader(f"Match Results for: {selected_brand}")
 
-    for i, (_, area_row) in enumerate(areas_df.iterrows()):
-        try:
-            features = pd.DataFrame([{
-                "Brand AOV": brand_row["AOV"],
-                "Brand Orders": brand_row["Monthly Orders"],
-                "Brand Aggregator Rank": brand_row["Aggregator Rank"],
-                "Area AOV": area_row["AOV"],
-                "Area Frequency": area_row["Order Frequency"],
-                "Competition 1": area_row["Competition Score 1"],
-                "Competition 2": area_row["Competition Score 2"],
-                "Competition 3": area_row["Competition Score 3"]
-            }])
+    # --- PREPROCESS ---
+    combined = []
+    for _, area_row in area_df.iterrows():
+        data = {
+            'Brand_Cuisine': brand_row['Cuisine'],
+            'Brand_AOV': brand_row['AOV'],
+            'Brand_Position': brand_row['Position'],
+            'Brand_Orders': brand_row['Orders'],
+            'Area_Population': area_row['Population'],
+            'Area_Households': area_row['Households'],
+            'Top_Nationality_1': area_row['Top Nationality 1'],
+            'Top_Nationality_2': area_row['Top Nationality 2'],
+            'Top_Nationality_3': area_row['Top Nationality 3'],
+            'Top_Cuisine_1': area_row['Top Cuisine 1'],
+            'Top_Cuisine_2': area_row['Top Cuisine 2'],
+            'Top_Cuisine_3': area_row['Top Cuisine 3'],
+            'Area_AOV': area_row['AOV'],
+            'Order_Frequency': area_row['Order Frequency'],
+            'Competition_Cuisine_1': area_row['Competition 1'],
+            'Competition_Cuisine_2': area_row['Competition 2'],
+            'Competition_Cuisine_3': area_row['Competition 3']
+        }
+        combined.append({**data, 'Area': area_row['Area']})
 
-            score = model.predict(features)[0]
-            explanation = f"Cuisine match, price alignment and local demand suggest a fit score of {score:.2f}."
-        except Exception as e:
-            score = None
-            explanation = f"Error: {str(e)}"
+    match_data = pd.DataFrame(combined)
 
-        results.append({
-            "Area": area_row["Area"],
-            "ML Explanation": explanation,
-            "Score": score
-        })
+    # --- ENCODING ---
+    encoded = pd.get_dummies(match_data.drop(columns=["Area"]), drop_first=True)
 
-        progress_bar.progress((i + 1) / len(areas_df))
+    # --- PREDICT ---
+    match_data["Score"] = model.predict(encoded)
 
-    results_df = pd.DataFrame(results)
+    # --- RESULTS ---
+    match_data_sorted = match_data.sort_values(by="Score", ascending=False)
 
-    st.subheader("Area-by-Area Breakdown")
-    for index, row in results_df.iterrows():
-        st.markdown(f"**Area: {row['Area']}**")
-        st.markdown(f"> {row['ML Explanation']}")
-        st.markdown(f"**Score:** {row['Score'] if row['Score'] else 'Not rated'}")
-        st.markdown("---")
-
+    # --- VISUALIZATION ---
     st.subheader("Top 3 Best-Fit Areas")
-    top3_df = results_df.dropna(subset=["Score"]).sort_values(by="Score", ascending=False).head(3)
-    st.dataframe(top3_df[["Area", "Score"]], use_container_width=True)
+    top3 = match_data_sorted.head(3)[["Area", "Score"]]
+    st.dataframe(top3)
 
-    st.subheader("ML Match Score Chart")
-    chart_data = results_df.dropna(subset=["Score"]).sort_values(by="Score", ascending=True)
+    st.subheader("Match Score Chart")
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.barplot(data=match_data_sorted, x="Score", y="Area", palette="Blues_d", ax=ax)
+    st.pyplot(fig)
 
-    if not chart_data.empty:
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.set_style("whitegrid")
-        sns.barplot(data=chart_data, y="Area", x="Score", color="black", ax=ax)
-        ax.set_title(f"ML Match Scores for '{selected_brand}'", fontsize=14)
-        ax.set_xlabel("Score", fontsize=12)
-        ax.set_ylabel("Area", fontsize=12)
-        st.pyplot(fig)
-    else:
-        st.info("No scores available for chart.")
+    st.subheader("Full Results")
+    st.dataframe(match_data_sorted[["Area", "Score"]])
 
-    st.subheader("Download Full Results")
-    st.dataframe(results_df)
-
+    # --- DOWNLOAD ---
     st.download_button(
-        label="Download Results as CSV",
-        data=results_df.to_csv(index=False).encode('utf-8'),
-        file_name=f"ml_match_results_{selected_brand}.csv",
-        mime='text/csv'
+        label="Download Match Scores",
+        data=match_data_sorted.to_csv(index=False).encode('utf-8'),
+        file_name="match_results.csv",
+        mime="text/csv"
     )
