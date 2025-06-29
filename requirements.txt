@@ -2,3 +2,5 @@ streamlit
 scikit-learn
 pandas
 openpyxl
+scikit-learn==1.2.2
+numpy==1.24.4
