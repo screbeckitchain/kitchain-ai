@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-st.title("Kitchain: Подбор зон для фуд-брендов")
+st.title("Kitchain: Подбор зон для фуд-брендов")ю готовый app.py, адаптир
 st.write("Загрузите файлы Excel с данными о брендах и зонах, чтобы получить прогнозы соответствия брендов и локаций.")
 
 brand_file = st.file_uploader("Excel файл с брендами", type=["xlsx"])
@@ -17,7 +17,7 @@ if brand_file is not None and zone_file is not None:
         st.error(f"Ошибка чтения файлов: {e}")
     else:
         try:
-            model = joblib.load("kitchain_match_model.joblib")
+            model = joblib.load("kitchain_model_v2.joblib")
         except Exception as e:
             st.error(f"Ошибка загрузки ML-модели: {e}")
         else:
@@ -52,7 +52,7 @@ if brand_file is not None and zone_file is not None:
                         match_rank,
                         comp_val
                     ]
-                    pred_score = model.predict([features])[0]
+                    pred_score = l.predict([features])[0]
                     pred_score = min(max(pred_score, 1), 10)
                     pred_score = round(pred_score, 1)
                     results.append({
