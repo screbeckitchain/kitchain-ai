@@ -10,7 +10,14 @@ st.title("AI Matchmaker: Predict Best Area–Brand Fit")
 def load_model(use_xgb: bool = False):
     """Load either the classic scikit-learn model or the XGBoost model."""
     if use_xgb:
-        return joblib.load("xgb_model.pkl")
+        try:
+            return joblib.load("xgb_model.pkl")
+        except Exception:
+            st.error(
+                "Failed to load the XGBoost model. Install the `xgboost` package "
+                "to enable this option."
+            )
+            st.stop()
     return joblib.load("kitchain_match_model.joblib")
 
 st.sidebar.header("Model")
