@@ -1,4 +1,4 @@
-Name: kitchain-ai
+name: kitchain-ai
 channels:
   - defaults
   - conda-forge
