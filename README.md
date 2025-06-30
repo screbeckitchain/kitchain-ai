@@ -35,3 +35,12 @@ python train_xgb_model.py
 
 When launching the Streamlit app you can choose **XGBoost** from the sidebar to
 use the new model instead of the bundled RandomForest model.
+
+## Running the App
+
+Activate the Conda environment and start Streamlit:
+
+```bash
+conda activate kitchain-ai
+streamlit run app.py
+```
