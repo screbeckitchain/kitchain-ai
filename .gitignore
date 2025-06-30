@@ -1,0 +1,5 @@
+# Ignore binary model artifacts
+*.pkl
+!xgb_model.pkl
+*.joblib
+!kitchain_match_model.joblib
