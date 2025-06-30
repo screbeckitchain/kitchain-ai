@@ -38,7 +38,10 @@ def load_model(use_xgb: bool = False):
             st.stop()
 
     try:
-        return joblib.load(model_path)
+        import xgboost as xgb
+        model = xgb.XGBRegressor()
+        model.load_model(MODEL_DIR / "xgb_model.json")
+return model
     except Exception as exc:
         st.error(f"Failed to load the model: {exc}")
         st.stop()
