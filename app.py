@@ -7,10 +7,20 @@ st.title("AI Matchmaker: Predict Best Area–Brand Fit")
 
 # === Load model ===
 @st.cache_resource
-def load_model():
+def load_model(use_xgb: bool = False):
+    """Load either the classic scikit-learn model or the XGBoost model."""
+    if use_xgb:
+        return joblib.load("xgb_model.pkl")
     return joblib.load("kitchain_match_model.joblib")
 
-model = load_model()
+st.sidebar.header("Model")
+model_choice = st.sidebar.selectbox(
+    "Choose model type",
+    ["RandomForest", "XGBoost"],
+    index=0,
+)
+
+model = load_model(use_xgb=model_choice == "XGBoost")
 
 # === Upload data ===
 st.sidebar.header("Upload Your Data")
