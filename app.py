@@ -81,7 +81,7 @@ if brands_file and areas_file:
         "Comp Score Cuisine 3",
         "Competition3",
         "Competition 3",
-    )
+   )
 
     for _, area_row in areas_df.iterrows():
         # Build feature vector using detected column names
@@ -105,6 +105,11 @@ if brands_file and areas_file:
         })
 
     results_df = pd.DataFrame(results).sort_values(by="Score", ascending=False)
+
+    st.markdown(
+        "Higher scores indicate areas where the brand is likely to perform well. "
+        "Graphs below show predicted scores by area."
+    )
 
     st.subheader("Top Matching Areas")
     st.dataframe(results_df, use_container_width=True)
