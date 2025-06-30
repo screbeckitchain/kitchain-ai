@@ -1,87 +1,3 @@
-
-Modify load_table to check file extension
-Jun 30
-screbeckitchain/kitchain-ai
-main
-+7
--44
-
-Archive
-
-Share
-
-Create PR
-
-
-* Modify `load_table(file)` in `app.py` to check the extension using `.lower()` on `file.name`.
-* Example: `if file.name.lower().endswith(".csv"):`
-* Optionally, add a simple `else` branch with an informative error if the file is neither CSV nor Excel.
-Copy
-Summary
-
-Revised the file loader to normalize the filename before checking extensions, supporting CSV and Excel formats with a helpful error for unsupported ones
-
-Corrected the feature dictionary to include a comma after the last “comp_score_3” entry, preventing syntax errors during compilation
-
-Testing
-
-✅ python -m py_compile app.py
-
-
-File (1)
-
-app.py
-+7
--44
-
-
-Diff
-Logs
-app.py
-+7
--44
-
-
-Fix bug in important codebase part
-Jun 30
-screbeckitchain/kitchain-ai
-main
-+46
--15
-
-Archive
-
-Share
-
-Create PR
-
-
-Pick a part of the codebase that seems important and find and fix a bug.
-Copy
-Summary
-
-Updated the app to accept both CSV and Excel uploads, providing a helper to load either format seamlessly
-
-Mapped uploaded data columns to the model’s expected feature names and ensured the prediction DataFrame matches that order
-
-Testing
-
-✅ python -m py_compile app.py
-
-
-File (1)
-
-app.py
-+46
--15
-
-
-Diff
-Logs
-app.py
-+46
--15
-
 import streamlit as st
 import pandas as pd
 import joblib
@@ -110,11 +26,9 @@ areas_file = st.sidebar.file_uploader(
 
 def load_table(file):
     """Load CSV or Excel file into a DataFrame."""
-    if file.name.endswith(".csv"):
     name = file.name.lower()
     if name.endswith(".csv"):
         return pd.read_csv(file)
-    return pd.read_excel(file)
     elif name.endswith(('.xls', '.xlsx')):
         return pd.read_excel(file)
     else:
@@ -170,7 +84,6 @@ if brands_file and areas_file:
             "area_order_freq": area_row["Order Frequency"],
             "comp_score_1": area_row["Comp Score Cuisine 1"],
             "comp_score_2": area_row["Comp Score Cuisine 2"],
-            "comp_score_3": area_row["Comp Score Cuisine 3"]
             "comp_score_3": area_row["Comp Score Cuisine 3"],
             "brand_orders": brand_row[brand_orders_col],
             "agg_position": brand_row[agg_score_col],
