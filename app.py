@@ -147,6 +147,8 @@ if brands_file and areas_file:
         "Higher scores indicate areas where the brand is likely to perform well."
         "Graphs below show predicted scores by area."
     )
+    
+ st.bar_chart(results_df.set_index("Area")["Score"])
 
     st.subheader("Top Matching Areas")
     st.dataframe(results_df, use_container_width=True)
