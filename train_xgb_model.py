@@ -1,7 +1,6 @@
 import pandas as pd
 import joblib
 import xgboost as xgb
-from pathlib import Path
 
 WEIGHTS_FILE = 'feature_weights_full.xlsx'
 BRANDS_FILE = 'sample_brands.csv'
@@ -36,7 +35,9 @@ def load_weights(path: str = WEIGHTS_FILE) -> dict:
     return {k: v / total for k, v in weights.items()}
 
 
-def build_dataset(brands_path: str = BRANDS_FILE, areas_path: str = AREAS_FILE):
+def build_dataset(
+    brands_path: str = BRANDS_FILE, areas_path: str = AREAS_FILE
+):
     brands = pd.read_csv(brands_path)
     areas = pd.read_csv(areas_path)
     rows = []
