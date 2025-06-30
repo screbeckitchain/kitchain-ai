@@ -3,3 +3,6 @@
 !xgb_model.pkl
 *.joblib
 !kitchain_match_model.joblib
+
+# Ignore Python cache directories
+__pycache__/
