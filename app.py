@@ -86,16 +86,14 @@ if brands_file and areas_file:
     for _, area_row in areas_df.iterrows():
         # Build feature vector using detected column names
         features = {
-            "brand_aov": brand_row["AOV"],
-            "brand_orders": brand_row[brand_orders_col],
-            "brand_aggregator_score": brand_row[agg_score_col],
-            "area_population": area_row["Population"],
-            "area_households": area_row["Households"],
             "area_aov": area_row[area_aov_col],
-            "area_order_freq": area_row[order_freq_col],
-            "comp_score_1": area_row[comp1_col],
-            "comp_score_2": area_row[comp2_col],
-            "comp_score_3": area_row[comp3_col],
+            "order_freq": area_row[order_freq_col],
+            "competition_cuisine_1": area_row[comp1_col],
+            "competition_cuisine_2": area_row[comp2_col],
+            "competition_cuisine_3": area_row[comp3_col],
+            "brand_aov": brand_row["AOV"],
+            "agg_position": brand_row[agg_score_col],
+            "brand_orders": brand_row[brand_orders_col],
         }
 
         X = pd.DataFrame([features])
@@ -117,3 +115,5 @@ if brands_file and areas_file:
         file_name="match_results.csv",
         mime="text/csv"
     )
+else:
+    st.info("Please upload both brand and area CSV/Excel files.")
