@@ -31,6 +31,20 @@ def load_table(file):
         return pd.read_excel(file)
     raise ValueError("Unsupported file type: please upload a CSV or Excel file.")
 
+
+def resolve_column(df, *names):
+    """Return the first matching column name from a list of possibilities."""
+    for name in names:
+        if name in df.columns:
+            return name
+
+    normalized = {c.lower().replace(" ", ""): c for c in df.columns}
+    for name in names:
+        key = name.lower().replace(" ", "")
+        if key in normalized:
+            return normalized[key]
+    raise KeyError(f"None of the columns {names} were found in {df.columns.tolist()}")
+
 if brands_file and areas_file:
     brands_df = load_table(brands_file)
     areas_df = load_table(areas_file)
@@ -46,24 +60,27 @@ if brands_file and areas_file:
     results = []
 
     # Map possible column name variations
-    brand_orders_col = (
-        "Orders Per Month" if "Orders Per Month" in brands_df.columns else "MonthlyOrders"
+    brand_orders_col = resolve_column(brands_df, "Orders Per Month", "MonthlyOrders")
+    agg_score_col = resolve_column(brands_df, "Aggregator Score", "AggregatorScore")
+    area_aov_col = resolve_column(areas_df, "AOV", "AOV_area")
+    order_freq_col = resolve_column(areas_df, "Order Frequency", "Frequency")
+    comp1_col = resolve_column(
+        areas_df,
+        "Comp Score Cuisine 1",
+        "Competition1",
+        "Competition 1",
     )
-    agg_score_col = (
-        "Aggregator Score" if "Aggregator Score" in brands_df.columns else "AggregatorScore"
+    comp2_col = resolve_column(
+        areas_df,
+        "Comp Score Cuisine 2",
+        "Competition2",
+        "Competition 2",
     )
-    area_aov_col = "AOV" if "AOV" in areas_df.columns else "AOV_area"
-    order_freq_col = (
-        "Order Frequency" if "Order Frequency" in areas_df.columns else "Frequency"
-    )
-    comp1_col = (
-        "Comp Score Cuisine 1" if "Comp Score Cuisine 1" in areas_df.columns else "Competition1"
-    )
-    comp2_col = (
-        "Comp Score Cuisine 2" if "Comp Score Cuisine 2" in areas_df.columns else "Competition2"
-    )
-    comp3_col = (
-        "Comp Score Cuisine 3" if "Comp Score Cuisine 3" in areas_df.columns else "Competition3"
+    comp3_col = resolve_column(
+        areas_df,
+        "Comp Score Cuisine 3",
+        "Competition3",
+        "Competition 3",
     )
 
     for _, area_row in areas_df.iterrows():
@@ -75,6 +92,7 @@ if brands_file and areas_file:
             "area_population": area_row["Population"],
             "area_households": area_row["Households"],
             "area_aov": area_row[area_aov_col],
+            "area_order_freq": area_row[order_freq_col],
             "comp_score_1": area_row[comp1_col],
             "comp_score_2": area_row[comp2_col],
             "comp_score_3": area_row[comp3_col],
@@ -99,5 +117,3 @@ if brands_file and areas_file:
         file_name="match_results.csv",
         mime="text/csv"
     )
-else:
-    st.info("Please upload both brand and area CSV/Excel files.")
