@@ -1,7 +1,6 @@
 
 @st.cache_resource
 def load_model(use_xgb: bool = False):
-from pathlib import Path
     """Load either the classic scikit-learn model or the XGBoost model."""
     if use_xgb:
         try:
