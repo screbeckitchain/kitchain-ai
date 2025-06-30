@@ -1,24 +1,29 @@
 import streamlit as st
 import pandas as pd
 import joblib
+from pathlib import Path
 
 st.set_page_config(layout="wide")
 st.title("AI Matchmaker: Predict Best Area–Brand Fit")
 
 # === Load model ===
+MODEL_DIR = Path(__file__).resolve().parent
+
+
 @st.cache_resource
 def load_model(use_xgb: bool = False):
     """Load either the classic scikit-learn model or the XGBoost model."""
     if use_xgb:
+        model_path = MODEL_DIR / "xgb_model.pkl"
         try:
-            return joblib.load("xgb_model.pkl")
+            return joblib.load(model_path)
         except Exception:
             st.error(
-                "Failed to load the XGBoost model. Install the `xgboost` package "
-                "to enable this option."
+                "Failed to load the XGBoost model. Install the `xgboost` package"
+                " to enable this option."
             )
             st.stop()
-    return joblib.load("kitchain_match_model.joblib")
+    return joblib.load(MODEL_DIR / "kitchain_match_model.joblib")
 
 st.sidebar.header("Model")
 model_choice = st.sidebar.selectbox(
@@ -44,35 +49,7 @@ def load_table(file):
     name = file.name.lower()
     if name.endswith(".csv"):
         return pd.read_csv(file)
-    elif name.endswith((".xls", ".xlsx")):
-        return pd.read_excel(file)
-    raise ValueError("Unsupported file type: please upload a CSV or Excel file.")
-
-
-def resolve_column(df, *names):
-    """Return the first matching column name from a list of possibilities."""
-    for name in names:
-        if name in df.columns:
-            return name
-
-    normalized = {c.lower().replace(" ", ""): c for c in df.columns}
-    for name in names:
-        key = name.lower().replace(" ", "")
-        if key in normalized:
-            return normalized[key]
-    raise KeyError(f"None of the columns {names} were found in {df.columns.tolist()}")
-
-if brands_file and areas_file:
-    brands_df = load_table(brands_file)
-    areas_df = load_table(areas_file)
-
-    st.success("Files uploaded successfully!")
-
-    st.subheader("Select a Brand")
-    brand_names = brands_df["Brand"].tolist()
-    selected_brand = st.selectbox("Choose a brand to evaluate:", brand_names)
-
-    brand_row = brands_df[brands_df["Brand"] == selected_brand].iloc[0]
+@@ -76,66 +81,66 @@ if brands_file and areas_file:
 
     results = []
 
@@ -98,7 +75,7 @@ if brands_file and areas_file:
         "Comp Score Cuisine 3",
         "Competition3",
         "Competition 3",
-   )
+    )
 
     for _, area_row in areas_df.iterrows():
         # Build feature vector using detected column names
@@ -124,7 +101,7 @@ if brands_file and areas_file:
     results_df = pd.DataFrame(results).sort_values(by="Score", ascending=False)
 
     st.markdown(
-        "Higher scores indicate areas where the brand is likely to perform well. "
+        "Higher scores indicate areas where the brand is likely to perform well."
         "Graphs below show predicted scores by area."
     )
 
