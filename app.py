@@ -1,4 +1,47 @@
 
+Modify load_table to check file extension
+Jun 30
+screbeckitchain/kitchain-ai
+main
++7
+-44
+
+Archive
+
+Share
+
+Create PR
+
+
+* Modify `load_table(file)` in `app.py` to check the extension using `.lower()` on `file.name`.
+* Example: `if file.name.lower().endswith(".csv"):`
+* Optionally, add a simple `else` branch with an informative error if the file is neither CSV nor Excel.
+Copy
+Summary
+
+Revised the file loader to normalize the filename before checking extensions, supporting CSV and Excel formats with a helpful error for unsupported ones
+
+Corrected the feature dictionary to include a comma after the last “comp_score_3” entry, preventing syntax errors during compilation
+
+Testing
+
+✅ python -m py_compile app.py
+
+
+File (1)
+
+app.py
++7
+-44
+
+
+Diff
+Logs
+app.py
++7
+-44
+
+
 Fix bug in important codebase part
 Jun 30
 screbeckitchain/kitchain-ai
@@ -68,8 +111,14 @@ areas_file = st.sidebar.file_uploader(
 def load_table(file):
     """Load CSV or Excel file into a DataFrame."""
     if file.name.endswith(".csv"):
+    name = file.name.lower()
+    if name.endswith(".csv"):
         return pd.read_csv(file)
     return pd.read_excel(file)
+    elif name.endswith(('.xls', '.xlsx')):
+        return pd.read_excel(file)
+    else:
+        raise ValueError("Unsupported file format: please upload CSV or Excel files")
 
 if brands_file and areas_file:
     brands_df = pd.read_excel(brands_file)
@@ -95,7 +144,7 @@ if brands_file and areas_file:
         "Aggregator Score" if "Aggregator Score" in brands_df.columns else "AggregatorScore"
     )
     area_aov_col = "AOV" if "AOV" in areas_df.columns else "AOV_area"
-    order_freq_col = (
+@@ -99,51 +62,51 @@ if brands_file and areas_file:
         "Order Frequency" if "Order Frequency" in areas_df.columns else "Frequency"
     )
     comp1_col = (
@@ -122,6 +171,7 @@ if brands_file and areas_file:
             "comp_score_1": area_row["Comp Score Cuisine 1"],
             "comp_score_2": area_row["Comp Score Cuisine 2"],
             "comp_score_3": area_row["Comp Score Cuisine 3"]
+            "comp_score_3": area_row["Comp Score Cuisine 3"],
             "brand_orders": brand_row[brand_orders_col],
             "agg_position": brand_row[agg_score_col],
             "area_aov": area_row[area_aov_col],
@@ -147,10 +197,3 @@ if brands_file and areas_file:
     st.dataframe(results_df, use_container_width=True)
 
     st.download_button(
-        label="Download Results CSV",
-        data=results_df.to_csv(index=False).encode("utf-8"),
-        file_name="match_results.csv",
-        mime="text/csv"
-    )
-else:
-    st.info("Please upload both brand and area Excel files.")
