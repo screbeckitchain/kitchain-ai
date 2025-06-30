@@ -1,7 +1,8 @@
-import streamlit as st
-import pandas as pd
-import joblib
 from pathlib import Path
+
+import joblib
+import pandas as pd
+import streamlit as st
 
 st.set_page_config(layout="wide")
 st.title("AI Matchmaker: Predict Best Area–Brand Fit")
@@ -13,17 +14,34 @@ MODEL_DIR = Path(__file__).resolve().parent
 @st.cache_resource
 def load_model(use_xgb: bool = False):
     """Load either the classic scikit-learn model or the XGBoost model."""
+    model_path = (
+        MODEL_DIR / "xgb_model.pkl"
+        if use_xgb
+        else MODEL_DIR / "kitchain_match_model.joblib"
+    )
+
+    if not model_path.exists():
+        st.error(
+            f"Model file `{model_path.name}` not found. Please train the model or place "
+            "it in the application directory."
+        )
+        st.stop()
+
     if use_xgb:
-        model_path = MODEL_DIR / "xgb_model.pkl"
         try:
-            return joblib.load(model_path)
-        except Exception:
+            import xgboost  # noqa: F401
+        except ModuleNotFoundError:
             st.error(
-                "Failed to load the XGBoost model. Install the `xgboost` package"
-                " to enable this option."
+                "The `xgboost` package is required to use the XGBoost model. "
+                "Install it with `pip install xgboost`."
             )
             st.stop()
-    return joblib.load(MODEL_DIR / "kitchain_match_model.joblib")
+  
+    try:
+        return joblib.load(model_path)
+    except Exception as exc:
+        st.error(f"Failed to load the model: {exc}")
+        st.stop()
 
 
 st.sidebar.header("Model")
@@ -40,9 +58,7 @@ st.sidebar.header("Upload Your Data")
 brands_file = st.sidebar.file_uploader(
     "Upload Brands File", type=["csv", "xls", "xlsx"]
 )
-areas_file = st.sidebar.file_uploader(
-    "Upload Areas File", type=["csv", "xls", "xlsx"]
-)
+areas_file = st.sidebar.file_uploader("Upload Areas File", type=["csv", "xls", "xlsx"])
 
 
 def load_table(file):
@@ -52,9 +68,7 @@ def load_table(file):
         return pd.read_csv(file)
     elif name.endswith((".xls", ".xlsx")):
         return pd.read_excel(file)
-    raise ValueError(
-        "Unsupported file type: please upload a CSV or Excel file."
-    )
+    raise ValueError("Unsupported file type: please upload a CSV or Excel file.")
 
 
 def resolve_column(df, *names):
@@ -68,9 +82,7 @@ def resolve_column(df, *names):
         key = name.lower().replace(" ", "")
         if key in normalized:
             return normalized[key]
-    raise KeyError(
-        f"None of the columns {names} were found in {df.columns.tolist()}"
-    )
+    raise KeyError(f"None of the columns {names} were found in {df.columns.tolist()}")
 
 
 if brands_file and areas_file:
@@ -88,16 +100,8 @@ if brands_file and areas_file:
     results = []
 
     # Map possible column name variations
-    brand_orders_col = resolve_column(
-        brands_df,
-        "Orders Per Month",
-        "MonthlyOrders",
-    )
-    agg_score_col = resolve_column(
-        brands_df,
-        "Aggregator Score",
-        "AggregatorScore",
-    )
+    brand_orders_col = resolve_column(brands_df, "Orders Per Month", "MonthlyOrders")
+    agg_score_col = resolve_column(brands_df, "Aggregator Score", "AggregatorScore")
     area_aov_col = resolve_column(areas_df, "AOV", "AOV_area")
     order_freq_col = resolve_column(areas_df, "Order Frequency", "Frequency")
     comp1_col = resolve_column(
@@ -135,16 +139,13 @@ if brands_file and areas_file:
         X = pd.DataFrame([features])
         predicted_score = model.predict(X)[0]
 
-        results.append({
-            "Area": area_row["Area"],
-            "Score": round(predicted_score, 2)
-        })
+        results.append({"Area": area_row["Area"], "Score": round(predicted_score, 2)})
 
     results_df = pd.DataFrame(results).sort_values(by="Score", ascending=False)
 
     st.markdown(
-        "Higher scores indicate areas where the brand is likely to perform "
-        "well. Graphs below show predicted scores by area."
+        "Higher scores indicate areas where the brand is likely to perform well."
+        "Graphs below show predicted scores by area."
     )
 
     st.subheader("Top Matching Areas")
@@ -154,7 +155,7 @@ if brands_file and areas_file:
         label="Download Results CSV",
         data=results_df.to_csv(index=False).encode("utf-8"),
         file_name="match_results.csv",
-        mime="text/csv"
+        mime="text/csv",
     )
 else:
     st.info("Please upload both brand and area CSV/Excel files.")
