@@ -36,7 +36,7 @@ def load_model(use_xgb: bool = False):
                 "Install it with `pip install xgboost`."
             )
             st.stop()
-  
+
     try:
         return joblib.load(model_path)
     except Exception as exc:
