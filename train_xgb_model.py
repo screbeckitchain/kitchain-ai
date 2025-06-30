@@ -2,13 +2,14 @@ import pandas as pd
 import joblib
 import xgboost as xgb
 
-WEIGHTS_FILE = 'feature_weights_full.xlsx'
-BRANDS_FILE = 'sample_brands.csv'
-AREAS_FILE = 'sample_areas.csv'
-MODEL_FILE = 'xgb_model.pkl'
+BASE_DIR = Path(__file__).resolve().parent
+WEIGHTS_FILE = BASE_DIR / "feature_weights_full.xlsx"
+BRANDS_FILE = BASE_DIR / "sample_brands.csv"
+AREAS_FILE = BASE_DIR / "sample_areas.csv"
+MODEL_FILE = BASE_DIR / "xgb_model.pkl"
 
 
-def load_weights(path: str = WEIGHTS_FILE) -> dict:
+def load_weights(path: Path = WEIGHTS_FILE) -> dict:
     """Return normalized feature weights.
 
     Only keep features used by the training script.
@@ -35,8 +36,7 @@ def load_weights(path: str = WEIGHTS_FILE) -> dict:
     return {k: v / total for k, v in weights.items()}
 
 
-def build_dataset(
-    brands_path: str = BRANDS_FILE, areas_path: str = AREAS_FILE
+def build_dataset(brands_path: Path = BRANDS_FILE, areas_path: Path = AREAS_FILE):
 ):
     brands = pd.read_csv(brands_path)
     areas = pd.read_csv(areas_path)
