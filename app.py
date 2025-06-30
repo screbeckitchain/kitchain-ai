@@ -75,7 +75,6 @@ if brands_file and areas_file:
             "area_population": area_row["Population"],
             "area_households": area_row["Households"],
             "area_aov": area_row[area_aov_col],
-            order_freq_col = "MonthlyOrders"
             "comp_score_1": area_row[comp1_col],
             "comp_score_2": area_row[comp2_col],
             "comp_score_3": area_row[comp3_col],
