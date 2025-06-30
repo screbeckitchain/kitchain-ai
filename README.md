@@ -17,3 +17,20 @@ conda env create -f environment.yml
 
 Package versions are pinned in both `environment.yml` and `requirements.txt`
 so the bundled model loads correctly.
+
+## XGBoost Model and Feature Weights
+
+`feature_weights_full.xlsx` defines the importance of each feature. The
+`train_xgb_model.py` script reads this spreadsheet, normalizes the weights and
+uses them to create a synthetic training target before fitting an XGBoost
+regression model. Running the script will produce `xgb_model.pkl` which can be
+loaded by the app.
+
+To train the demo XGBoost model:
+
+```bash
+python train_xgb_model.py
+```
+
+When launching the Streamlit app you can choose **XGBoost** from the sidebar to
+use the new model instead of the bundled RandomForest model.
