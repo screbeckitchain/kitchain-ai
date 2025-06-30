@@ -71,7 +71,7 @@ def train_model(X, y):
 def main():
     X, y = build_dataset()
     model = train_model(X, y)
-    joblib.dump(model, MODEL_FILE)
+    model.save_model("xgb_model.json")
     print(f"Saved model to {MODEL_FILE}")
 
 
