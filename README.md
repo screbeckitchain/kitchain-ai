@@ -44,3 +44,7 @@ Activate the Conda environment and start Streamlit:
 conda activate kitchain-ai
 streamlit run app.py
 ```
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
