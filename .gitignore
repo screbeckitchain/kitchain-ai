@@ -2,6 +2,7 @@
 *.pkl
 *.joblib
 !kitchain_match_model.joblib
+xgb_model.json
 
 # Ignore Python cache directories
 __pycache__/
