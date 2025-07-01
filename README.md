@@ -95,3 +95,18 @@ Excel or CSV file that does not match these names will cause the app to stop.
 - `Competition1`
 - `Competition2`
 - `Competition3`
+
+## OpenAI Explanations (Optional)
+
+To generate short text explanations for the top matches the application
+uses the OpenAI ChatCompletion API. Set your API key in the
+`OPENAI_API_KEY` environment variable before launching Streamlit:
+
+```bash
+export OPENAI_API_KEY=sk-...
+streamlit run app.py
+```
+
+Enable the **Generate explanations** option in the sidebar and choose how many
+top results to explain. The text is added to the **Explanation** column beneath
+each score.
