@@ -45,6 +45,39 @@ conda activate kitchain-ai
 streamlit run app.py
 ```
 
+## Input File Format
+
+Uploaded brand and area tables must contain the following columns. Any
+Excel or CSV file that does not match these names will cause the app to stop.
+
+**Brand file columns**
+
+- `Brand`
+- `Cuisine`
+- `AOV`
+- `AggregatorScore`
+- `MonthlyOrders`
+
+**Area file columns**
+
+- `Area`
+- `Population`
+- `Households`
+- `Top1Nationality`
+- `Top2Nationality`
+- `Top3Nationality`
+- `Top1Cuisine`
+- `Top2Cuisine`
+- `Top3Cuisine`
+- `AOV_area`
+- `Frequency`
+- `Competition1`
+- `Competition2`
+- `Competition3`
+
+The provided `sample_brands.csv` and `sample_areas.csv` can be used as
+templates when preparing your own data.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
