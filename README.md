@@ -9,6 +9,7 @@ The included `kitchain_match_model.joblib` was trained with:
 - scikit-learn 1.1.3
 - numpy 1.24.4
 - xgboost 1.7.6
+- openai
 
 The provided Conda environment targets **Python 3.10**. Install it with:
 
