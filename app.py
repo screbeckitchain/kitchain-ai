@@ -249,6 +249,17 @@ def build_features(brands: pd.DataFrame, areas: pd.DataFrame) -> pd.DataFrame:
             pairs.append({"Brand": b["Brand"], "Area": a["Area"]})
 
     X = pd.DataFrame(rows)
+        feature_cols = [
+        "area_aov",
+        "order_freq",
+        "competition_cuisine_1",
+        "competition_cuisine_2",
+        "competition_cuisine_3",
+        "brand_aov",
+        "agg_position",
+        "brand_orders",
+    ]
+    X = X[feature_cols]
     pairs_df = pd.DataFrame(pairs)
     return pairs_df, X
 
