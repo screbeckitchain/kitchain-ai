@@ -259,7 +259,7 @@ def build_features(
     X = pd.DataFrame(rows)
     if use_two_feature:
         feature_cols = ["aov_alignment_score", "cuisine_match_score"]
-                X = X[feature_cols].rename(
+        X = X[feature_cols].rename(
             columns={
                 "aov_alignment_score": "aov_score",
                 "cuisine_match_score": "cuisine_score",
