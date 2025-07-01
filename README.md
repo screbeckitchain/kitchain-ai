@@ -39,6 +39,19 @@ For a minimal example that only uses AOV and cuisine scores you can run:
 python train_xgb_two_feature.py
 ```
 
+`feature_weights_full.xlsx` also contains threshold and score values used when
+calculating AOV and cuisine alignment. The relevant keys are:
+
+- `AOV GRADE 1` – first AOV difference threshold
+- `AOV GRADE 2` – second AOV difference threshold
+- `AOV GRADE 3` – third AOV difference threshold
+- `AOV GRADE 3` (fourth entry) – highest AOV difference threshold
+- `AOV GRADE 1 Score` (four rows) – scores applied for each grade
+- `cuisine_match_score 1`, `cuisine_match_score 2`, `cuisine_match_score 3` –
+  scores for cuisine matches
+
+These keys are read by both the training scripts and the Streamlit app.
+
 When launching the Streamlit app you can choose **XGBoost** from the sidebar to
 use the new model instead of the bundled RandomForest model.
 
