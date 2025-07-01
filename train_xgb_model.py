@@ -1,12 +1,10 @@
 from pathlib import Path
 import pandas as pd
-import xgboost as xgb
 
 BASE_DIR = Path(__file__).resolve().parent
 WEIGHTS_FILE = BASE_DIR / "feature_weights_full.xlsx"
 BRANDS_FILE = BASE_DIR / "sample_brands.csv"
 AREAS_FILE = BASE_DIR / "sample_areas.csv"
-MODEL_FILE = BASE_DIR / "xgb_model.pkl"
 
 
 def load_weights(path: Path = WEIGHTS_FILE) -> dict:
@@ -70,8 +68,9 @@ def train_model(X, y):
 def main():
     X, y = build_dataset()
     model = train_model(X, y)
-    model.save_model("xgb_model.json")
-    print(f"Saved model to {MODEL_FILE}")
+    model_path = BASE_DIR / "xgb_model.json"
+    model.save_model(model_path)
+    print(f"Saved model to {model_path}")
 
 
 if __name__ == '__main__':
