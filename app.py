@@ -172,36 +172,61 @@ def get_data(brands_file, areas_file):
 
 def build_features(brands: pd.DataFrame, areas: pd.DataFrame) -> pd.DataFrame:
     """Return feature matrix and pair identifiers."""
-    weights_df = pd.read_excel(WEIGHTS_FILE)
+    weights_df = pd.read_excel(WEIGHTS_FILE, header=None, names=["feature", "weight"])
     weights_df = weights_df.dropna()
     weights_df.columns = ["feature", "weight"]
     weights_df = weights_df[weights_df["feature"] != "Feature"]
     weights = dict(zip(weights_df["feature"], weights_df["weight"]))
 
     aov_w = weights.get("aov_alignment_score", 1)
-    cuisine_w = weights.get("cuisine_match_score", 1)
-    thr10 = weights.get("aov_threshold_10", 0.1)
-    thr20 = weights.get("aov_threshold_20", 0.2)
+    
+    thr_vals = (
+        weights_df[
+            weights_df["feature"].str.startswith("AOV GRADE")
+            & ~weights_df["feature"].str.contains("Score")
+        ]["weight"].astype(float).tolist()
+    )
+    score_vals = (
+        weights_df[
+            weights_df["feature"].str.startswith("AOV GRADE")
+            & weights_df["feature"].str.contains("Score")
+        ]["weight"].astype(float).tolist()
+    )
+    cuisine_vals = (
+        weights_df[weights_df["feature"].str.startswith("cuisine_match_score")][
+            "weight"
+        ]
+        .astype(float)
+        .tolist()
+    )
+    if len(thr_vals) < 4:
+        thr_vals += [0.1, 0.2, 0.3, 0.4][len(thr_vals) :]
+    if len(score_vals) < 4:
+        score_vals += [10, 6, 4, 0][len(score_vals) :]
+    if len(cuisine_vals) < 3:
+        cuisine_vals += [10, 8, 6][len(cuisine_vals) :]
 
     rows = []
     pairs = []
     for _, b in brands.iterrows():
         for _, a in areas.iterrows():
             diff_ratio = abs(b["AOV"] - a["AOV_area"]) / b["AOV"]
-            if diff_ratio <= thr10:
-                aov_base = 8
-            elif diff_ratio <= thr20:
-                aov_base = 4
+            if diff_ratio <= thr_vals[0]:
+                aov_base = score_vals[0]
+            elif diff_ratio <= thr_vals[1]:
+                aov_base = score_vals[1]
+            elif diff_ratio <= thr_vals[2]:
+                aov_base = score_vals[2]
             else:
-                aov_base = 2
+                aov_base = score_vals[3]
             aov_score = aov_base * aov_w
 
             if b["Cuisine"] == a["Top1Cuisine"]:
-                cuisine_base = 8
+                cuisine_base = cuisine_vals[0]
             elif b["Cuisine"] == a["Top2Cuisine"]:
-                cuisine_base = 6
+                cuisine_base = cuisine_vals[1]
             elif b["Cuisine"] == a["Top3Cuisine"]:
-                cuisine_base = 4
+                cuisine_base = cuisine_vals[2]
             else:
                 cuisine_base = 0
             cuisine_score = cuisine_base * cuisine_w
@@ -226,30 +251,3 @@ def build_features(brands: pd.DataFrame, areas: pd.DataFrame) -> pd.DataFrame:
     pairs_df = pd.DataFrame(pairs)
     return pairs_df, X
 
-
-brands_df, areas_df = get_data(brands_file, areas_file)
-brand_options = brands_df["Brand"].unique().tolist()
-selected_brands = st.sidebar.multiselect(
-    "Select brand(s)", brand_options, default=brand_options
-)
-brands_df = brands_df[brands_df["Brand"].isin(selected_brands)]
-pairs_df, features = build_features(brands_df, areas_df)
-
-model_cols = [
-    "area_aov",
-    "order_freq",
-    "competition_cuisine_1",
-    "competition_cuisine_2",
-    "competition_cuisine_3",
-    "brand_aov",
-    "agg_position",
-    "brand_orders",
-]
-preds = model.predict(features[model_cols])
-results = pd.concat(
-    [pairs_df, features[["aov_alignment_score", "cuisine_match_score"]]],
-    axis=1,
-).assign(Score=preds).sort_values("Score", ascending=False)
-
-st.subheader("Top Matches")
-st.dataframe(results)
