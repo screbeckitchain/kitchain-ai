@@ -24,7 +24,7 @@ so the bundled model loads correctly.
 `feature_weights_full.xlsx` defines the importance of each feature. The
 `train_xgb_model.py` script reads this spreadsheet, normalizes the weights and
 uses them to create a synthetic training target before fitting an XGBoost
-regression model. Running the script will produce `xgb_model.pkl` which can be
+regression model. Running the script will produce `xgb_model.json` which can be
 loaded by the app.
 
 To train the demo XGBoost model:
