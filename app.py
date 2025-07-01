@@ -9,6 +9,31 @@ st.title("AI Matchmaker: Predict Best Area–Brand Fit")
 
 # === Load model ===
 MODEL_DIR = Path(__file__).resolve().parent
+WEIGHTS_FILE = MODEL_DIR / "feature_weights_full.xlsx"
+
+
+@st.cache_data
+def load_weights(path: Path = WEIGHTS_FILE) -> dict:
+    """Return normalized feature weights used for explanations."""
+    df = pd.read_excel(path, header=None)
+    df = df.dropna().iloc[1:]
+    df.columns = ["feature", "weight"]
+    weights = dict(zip(df["feature"], df["weight"]))
+
+    used_features = {
+        "area_aov",
+        "order_freq",
+        "competition_cuisine_1",
+        "competition_cuisine_2",
+        "competition_cuisine_3",
+        "brand_aov",
+        "agg_position",
+        "brand_orders",
+    }
+    weights = {k: v for k, v in weights.items() if k in used_features}
+
+    total = sum(weights.values())
+    return {k: v / total for k, v in weights.items()}
 
 
 @st.cache_resource
@@ -126,6 +151,11 @@ def build_features(brands: pd.DataFrame, areas: pd.DataFrame) -> pd.DataFrame:
 
 
 brands_df, areas_df = get_data(brands_file, areas_file)
+brand_options = brands_df["Brand"].unique().tolist()
+selected_brands = st.sidebar.multiselect(
+    "Select brand(s)", brand_options, default=brand_options
+)
+brands_df = brands_df[brands_df["Brand"].isin(selected_brands)]
 pairs_df, features = build_features(brands_df, areas_df)
 
 preds = model.predict(features)
