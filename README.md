@@ -81,3 +81,13 @@ Excel or CSV file that does not match these names will cause the app to stop.
 - `MonthlyOrders`
 
 **Area file columns**
+
+- `Area`
+- `AOV_area`
+- `Top1Cuisine`
+- `Top2Cuisine`
+- `Top3Cuisine`
+- `Frequency`
+- `Competition1`
+- `Competition2`
+- `Competition3`
