@@ -252,3 +252,30 @@ def build_features(brands: pd.DataFrame, areas: pd.DataFrame) -> pd.DataFrame:
     pairs_df = pd.DataFrame(pairs)
     return pairs_df, X
 
+
+# === Run prediction workflow ===
+
+# Load uploaded or sample data
+brands_df, areas_df = get_data(brands_file, areas_file)
+
+# Allow user to choose specific brands
+all_brands = brands_df["Brand"].unique().tolist()
+selected_brands = st.sidebar.multiselect(
+    "Select brands", options=all_brands, default=all_brands
+)
+if selected_brands:
+    brands_df = brands_df[brands_df["Brand"].isin(selected_brands)]
+
+# Build features and make predictions
+pairs_df, feature_df = build_features(brands_df, areas_df)
+preds = model.predict(feature_df)
+
+# Combine predictions with identifiers
+results = pairs_df.copy()
+results["Score"] = preds
+results = results.sort_values("Score", ascending=False).reset_index(drop=True)
+
+# Display output
+st.header("Top Matches")
+st.dataframe(results)
+             
