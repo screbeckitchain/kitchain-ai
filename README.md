@@ -53,7 +53,10 @@ calculating AOV and cuisine alignment. The relevant keys are:
 These keys are read by both the training scripts and the Streamlit app.
 
 When launching the Streamlit app you can choose **XGBoost** from the sidebar to
-use the new model instead of the bundled RandomForest model.
+use the new model instead of the bundled RandomForest model. This XGBoost model
+was trained only on the AOV alignment and cuisine match scores, so the
+application automatically limits the feature set to those two inputs whenever
+this option is selected.
 
 ## Running the App
 
@@ -78,25 +81,3 @@ Excel or CSV file that does not match these names will cause the app to stop.
 - `MonthlyOrders`
 
 **Area file columns**
-
-- `Area`
-- `Population`
-- `Households`
-- `Top1Nationality`
-- `Top2Nationality`
-- `Top3Nationality`
-- `Top1Cuisine`
-- `Top2Cuisine`
-- `Top3Cuisine`
-- `AOV_area`
-- `Frequency`
-- `Competition1`
-- `Competition2`
-- `Competition3`
-
-The provided `sample_brands.csv` and `sample_areas.csv` can be used as
-templates when preparing your own data.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
