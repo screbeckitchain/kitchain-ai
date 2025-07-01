@@ -15,7 +15,7 @@ MODEL_DIR = Path(__file__).resolve().parent
 def load_model(use_xgb: bool = False):
     """Load either the classic scikit-learn model or the XGBoost model."""
     model_path = (
-        MODEL_DIR / "xgb_model.pkl"
+        MODEL_DIR / "xgb_model.json"
         if use_xgb
         else MODEL_DIR / "kitchain_match_model.joblib"
     )
@@ -39,7 +39,7 @@ def load_model(use_xgb: bool = False):
 
         try:
             model = xgb.XGBRegressor()
-            model.load_model(MODEL_DIR / "xgb_model.json")
+            model.load_model(model_path))
         except Exception as exc:
             st.error(f"Failed to load the XGBoost model: {exc}")
             st.stop()
