@@ -33,6 +33,12 @@ To train the demo XGBoost model:
 python train_xgb_model.py
 ```
 
+For a minimal example that only uses AOV and cuisine scores you can run:
+
+```bash
+python train_xgb_two_feature.py
+```
+
 When launching the Streamlit app you can choose **XGBoost** from the sidebar to
 use the new model instead of the bundled RandomForest model.
 
