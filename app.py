@@ -112,7 +112,11 @@ def load_table(file):
 
 
 def get_data(brands_file, areas_file):
-    """Load uploaded files or fall back to sample data."""
+    """Load uploaded files or fall back to sample data.
+
+    Validates that required columns are present and applies fallback column
+    names when possible.
+    """
     if brands_file is None:
         brands = pd.read_csv(MODEL_DIR / "sample_brands.csv")
     else:
@@ -122,6 +126,46 @@ def get_data(brands_file, areas_file):
         areas = pd.read_csv(MODEL_DIR / "sample_areas.csv")
     else:
         areas = load_table(areas_file)
+
+    # Apply fallback column names if provided
+    fallback_cols = {"Brand_Cuisine": "Cuisine"}
+    for df in (brands, areas):
+        for alt, canon in fallback_cols.items():
+            if alt in df.columns and canon not in df.columns:
+                df.rename(columns={alt: canon}, inplace=True)
+
+    required_brand_cols = {
+        "Brand",
+        "Cuisine",
+        "AOV",
+        "AggregatorScore",
+        "MonthlyOrders",
+    }
+    required_area_cols = {
+        "Area",
+        "AOV_area",
+        "Top1Cuisine",
+        "Top2Cuisine",
+        "Top3Cuisine",
+        "Frequency",
+        "Competition1",
+        "Competition2",
+        "Competition3",
+    }
+
+    missing_brand = required_brand_cols - set(brands.columns)
+    missing_area = required_area_cols - set(areas.columns)
+
+    if missing_brand or missing_area:
+        msgs = []
+        if missing_brand:
+            msgs.append("Brands: " + ", ".join(sorted(missing_brand)))
+        if missing_area:
+            msgs.append("Areas: " + ", ".join(sorted(missing_area)))
+        message = "Missing required column(s): " + "; ".join(msgs)
+        st.error(message)
+        raise ValueError(message)
+
 
     return brands, areas
 
