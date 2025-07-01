@@ -1,5 +1,6 @@
 from pathlib import Path
 import pandas as pd
+import xgboost as xgb
 
 BASE_DIR = Path(__file__).resolve().parent
 WEIGHTS_FILE = BASE_DIR / "feature_weights_full.xlsx"
