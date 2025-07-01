@@ -72,7 +72,7 @@ areas_file = st.sidebar.file_uploader("Upload Areas File", type=["csv", "xls", "
 
 def load_table(file):
     """Return DataFrame from CSV or Excel file."""
-        if file is None:
+    if file is None:
         return None
 
     name = file.name.lower()
