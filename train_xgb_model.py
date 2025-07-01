@@ -31,8 +31,7 @@ def load_weights(path: Path = WEIGHTS_FILE) -> dict:
     }
     weights = {k: v for k, v in weights.items() if k in used_features}
 
-    total = sum(weights.values())
-    return {k: v / total for k, v in weights.items()}
+    return weights
 
 
 def build_dataset(brands_path: Path = BRANDS_FILE, areas_path: Path = AREAS_FILE):
