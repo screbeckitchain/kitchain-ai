@@ -67,6 +67,9 @@ conda activate kitchain-ai
 streamlit run app.py
 ```
 
+The results table now includes a **Score (%)** column where the top
+prediction is scaled to 100%.
+
 ## Input File Format
 
 Uploaded brand and area tables must contain the following columns. Any
