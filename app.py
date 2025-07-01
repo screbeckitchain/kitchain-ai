@@ -259,6 +259,12 @@ def build_features(
     X = pd.DataFrame(rows)
     if use_two_feature:
         feature_cols = ["aov_alignment_score", "cuisine_match_score"]
+                X = X[feature_cols].rename(
+            columns={
+                "aov_alignment_score": "aov_score",
+                "cuisine_match_score": "cuisine_score",
+            }
+        )
     else:
         feature_cols = [
             "area_aov",
@@ -271,7 +277,7 @@ def build_features(
             "brand_orders",
         ]
 
-    X = X[feature_cols]
+        X = X[feature_cols]
     pairs_df = pd.DataFrame(pairs)
     return pairs_df, X
 
