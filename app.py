@@ -1,8 +1,14 @@
 from pathlib import Path
+import os
 
 import joblib
 import pandas as pd
 import streamlit as st
+
+try:
+    import openai  # type: ignore
+except Exception:
+    openai = None
 
 st.set_page_config(layout="wide")
 st.title("AI Matchmaker: Predict Best Area–Brand Fit")
@@ -87,6 +93,10 @@ model_choice = st.sidebar.selectbox(
 )
 
 model = load_model(use_xgb=model_choice == "XGBoost")
+
+st.sidebar.header("Explanations")
+explain = st.sidebar.checkbox("Generate explanations", value=False)
+top_n = st.sidebar.number_input("Top N results", 1, 20, 5)
 
 # === Upload data ===
 st.sidebar.header("Upload Your Data")
@@ -282,6 +292,41 @@ def build_features(
     return pairs_df, X
 
 
+def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float) -> str:
+    """Return a short text explaining the brand/area match using OpenAI."""
+    api_key = os.getenv("OPENAI_API_KEY")
+    if openai is None or not api_key:
+        return ""
+
+    openai.api_key = api_key
+    prompt = (
+        "Brand: {brand} ({cuisine}) AOV {baov}. "
+        "Area: {area} top cuisines {c1}, {c2}, {c3}. "
+        "Predicted score: {score:.1f}. "
+        "Explain in one sentence why this is a good match."
+    ).format(
+        brand=brand_row["Brand"],
+        cuisine=brand_row["Cuisine"],
+        baov=brand_row["AOV"],
+        area=area_row["Area"],
+        c1=area_row["Top1Cuisine"],
+        c2=area_row["Top2Cuisine"],
+        c3=area_row["Top3Cuisine"],
+        score=score,
+    )
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+        )
+    except Exception as exc:
+        st.error(f"OpenAI request failed: {exc}")
+        return ""
+
+    return response.choices[0].message.content.strip()
+
+
 # === Run prediction workflow ===
 
 # Load uploaded or sample data
@@ -307,6 +352,18 @@ results = pairs_df.copy()
 results["Score"] = preds
 results["Score (%)"] = (preds / max_score * 100).round(1)
 results = results.sort_values("Score", ascending=False).reset_index(drop=True)
+results["Explanation"] = ""
+
+if explain:
+    top_slice = results.head(int(top_n))
+    for idx, row in top_slice.iterrows():
+        b_row = brands_df[brands_df["Brand"] == row["Brand"]].iloc[0]
+        a_row = areas_df[areas_df["Area"] == row["Area"]].iloc[0]
+        results.at[idx, "Explanation"] = generate_explanation(
+            b_row,
+            a_row,
+            row["Score (%)"],
+        )
 
 # Display output
 st.header("Top Matches")
