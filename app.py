@@ -178,6 +178,7 @@ def build_features(brands: pd.DataFrame, areas: pd.DataFrame) -> pd.DataFrame:
     weights_df = weights_df[weights_df["feature"] != "Feature"]
     weights = dict(zip(weights_df["feature"], weights_df["weight"]))
 
+    cuisine_w = weights.get("cuisine_match_score", 1)
     aov_w = weights.get("aov_alignment_score", 1)
     
     thr_vals = (
