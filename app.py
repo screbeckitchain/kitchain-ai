@@ -300,10 +300,12 @@ pairs_df, feature_df = build_features(
     brands_df, areas_df, use_two_feature=model_choice == "XGBoost"
 )
 preds = model.predict(feature_df)
+max_score = preds.max()
 
 # Combine predictions with identifiers
 results = pairs_df.copy()
 results["Score"] = preds
+results["Score (%)"] = (preds / max_score * 100).round(1)
 results = results.sort_values("Score", ascending=False).reset_index(drop=True)
 
 # Display output
