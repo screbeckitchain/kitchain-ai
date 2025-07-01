@@ -170,8 +170,16 @@ def get_data(brands_file, areas_file):
     return brands, areas
 
 
-def build_features(brands: pd.DataFrame, areas: pd.DataFrame) -> pd.DataFrame:
-    """Return feature matrix and pair identifiers."""
+def build_features(
+    brands: pd.DataFrame, areas: pd.DataFrame, use_two_feature: bool = False
+) -> pd.DataFrame:
+    """Return feature matrix and pair identifiers.
+
+    When ``use_two_feature`` is ``True`` only the ``aov_alignment_score`` and
+    ``cuisine_match_score`` columns are returned. This matches the minimal
+    XGBoost model shipped with the repository which was trained on just those
+    two features.
+    """
     weights_df = pd.read_excel(WEIGHTS_FILE, header=None, names=["feature", "weight"])
     weights_df = weights_df.dropna()
     weights_df.columns = ["feature", "weight"]
@@ -249,16 +257,20 @@ def build_features(brands: pd.DataFrame, areas: pd.DataFrame) -> pd.DataFrame:
             pairs.append({"Brand": b["Brand"], "Area": a["Area"]})
 
     X = pd.DataFrame(rows)
-    feature_cols = [
-    "area_aov",
-    "order_freq",
-    "competition_cuisine_1",
-    "competition_cuisine_2",
-    "competition_cuisine_3",
-    "brand_aov",
-    "agg_position",
-    "brand_orders",
-    ]
+    if use_two_feature:
+        feature_cols = ["aov_alignment_score", "cuisine_match_score"]
+    else:
+        feature_cols = [
+            "area_aov",
+            "order_freq",
+            "competition_cuisine_1",
+            "competition_cuisine_2",
+            "competition_cuisine_3",
+            "brand_aov",
+            "agg_position",
+            "brand_orders",
+        ]
+
     X = X[feature_cols]
     pairs_df = pd.DataFrame(pairs)
     return pairs_df, X
@@ -278,7 +290,9 @@ if selected_brands:
     brands_df = brands_df[brands_df["Brand"].isin(selected_brands)]
 
 # Build features and make predictions
-pairs_df, feature_df = build_features(brands_df, areas_df)
+pairs_df, feature_df = build_features(
+    brands_df, areas_df, use_two_feature=model_choice == "XGBoost"
+)
 preds = model.predict(feature_df)
 
 # Combine predictions with identifiers
