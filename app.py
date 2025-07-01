@@ -17,7 +17,7 @@ def load_weights(path: Path = WEIGHTS_FILE) -> dict:
     """Return normalized feature weights used for explanations."""
     df = pd.read_excel(path, header=None)
     df.columns = ["feature", "weight"]
-        df = df.dropna()
+    df = df.dropna()
     df = df[df["feature"] != "Feature"]
     weights = dict(zip(df["feature"], df["weight"]))
 
