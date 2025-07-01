@@ -54,3 +54,33 @@ def build_dataset(brands_path: Path = BRANDS_FILE, areas_path: Path = AREAS_FILE
             if b["Cuisine"] == a["Top1Cuisine"]:
                 cuisine_score = cuisine_scores[0]
             elif b["Cuisine"] == a["Top2Cuisine"]:
+                cuisine_score = cuisine_scores[1]
+            elif b["Cuisine"] == a.get("Top3Cuisine", None):
+                cuisine_score = cuisine_scores[2]
+            else:
+                cuisine_score = 0
+
+            rows.append({"aov_score": aov_score, "cuisine_score": cuisine_score})
+            target.append(aov_score + cuisine_score)
+
+    X = pd.DataFrame(rows)
+    y = pd.Series(target)
+    return X, y
+
+
+def train_model(X: pd.DataFrame, y: pd.Series) -> xgb.XGBRegressor:
+    model = xgb.XGBRegressor(objective="reg:squarederror", random_state=42)
+    model.fit(X, y)
+    return model
+
+
+def main() -> None:
+    X, y = build_dataset()
+    model = train_model(X, y)
+    model_path = BASE_DIR / "xgb_model.json"
+    model.save_model(model_path)
+    print(f"Saved model to {model_path}")
+
+
+if __name__ == "__main__":
+    main()
