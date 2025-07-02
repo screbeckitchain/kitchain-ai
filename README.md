@@ -131,6 +131,7 @@ or a cuisine mismatch is the main reason for the low score.
 ## Brand Analysis Page
 
 The sidebar includes a **Brand analysis** link that opens the `/brand_analysis`
-page. Upload a brands file (or use the bundled sample) then choose a brand from
-the dropdown to generate a short report describing its strengths and potential
-challenges.
+page. Upload brand and area tables (or rely on the provided samples) and choose
+a brand from the dropdown. The page predicts the brand's score for every area
+using the selected model, generates a brief explanation for each match and
+displays a bar chart of the results.
