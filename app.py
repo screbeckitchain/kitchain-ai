@@ -296,8 +296,8 @@ def build_features(
 
 
 def _get_openai_key() -> str:
-    """Return the OpenAI API key from env or Streamlit secrets."""
-    return os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", "")
+    """Return the OpenAI API key from Streamlit secrets."""
+    return st.secrets.get("OPENAI_API_KEY", "")
 
 
 def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float) -> str:
