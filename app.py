@@ -10,6 +10,9 @@ try:
 except Exception:
     openai = None
 
+# Track whether we've already warned about a missing OpenAI API key
+_warned_no_key = False
+
 st.set_page_config(layout="wide")
 st.title("AI Matchmaker: Predict Best Area–Brand Fit")
 
@@ -305,6 +308,12 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
         return ""
     if not api_key:
         return ""
+                global _warned_no_key
+        if not _warned_no_key:
+            st.warning(
+                "OpenAI API key not configured; explanations are disabled."
+            )
+            _warned_no_key = True
 
     prompt = (
         "Brand: {brand} ({cuisine}) AOV {baov}. "
