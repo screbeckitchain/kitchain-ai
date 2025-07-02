@@ -100,12 +100,12 @@ Excel or CSV file that does not match these names will cause the app to stop.
 
 To generate short text explanations for the top matches the application
 uses the OpenAI ChatCompletion API. The `openai` Python package must be
-installed and you need to provide a valid API key. Set the key either in the
-`OPENAI_API_KEY` environment variable or as `OPENAI_API_KEY` in Streamlit
-secrets before launching Streamlit:
+installed and you need to provide a valid API key. Add your key as
+`OPENAI_API_KEY` in the app's Streamlit **Secrets** settings.
+
+Run Streamlit once the key is configured:
 
 ```bash
-export OPENAI_API_KEY=sk-...
 streamlit run app.py
 ```
 
