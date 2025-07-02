@@ -109,9 +109,11 @@ top_n = st.sidebar.number_input(
 # === Upload data ===
 st.sidebar.header("Upload Your Data")
 brands_file = st.sidebar.file_uploader(
-    "Upload Brands File", type=["csv", "xls", "xlsx"]
+    "Upload Brands File", type=["csv", "xls", "xlsx"], key="main_brands_file"
 )
-areas_file = st.sidebar.file_uploader("Upload Areas File", type=["csv", "xls", "xlsx"])
+areas_file = st.sidebar.file_uploader(
+    "Upload Areas File", type=["csv", "xls", "xlsx"], key="main_areas_file"
+)
 
 st.sidebar.page_link("pages/brand_analysis.py", label="Brand analysis")
 
