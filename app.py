@@ -113,6 +113,8 @@ brands_file = st.sidebar.file_uploader(
 )
 areas_file = st.sidebar.file_uploader("Upload Areas File", type=["csv", "xls", "xlsx"])
 
+st.sidebar.page_link("pages/brand_analysis.py", label="Brand analysis")
+
 
 def load_table(file):
     """Return DataFrame from CSV or Excel file."""
