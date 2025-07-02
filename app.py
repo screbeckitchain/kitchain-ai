@@ -292,9 +292,14 @@ def build_features(
     return pairs_df, X
 
 
+def _get_openai_key() -> str:
+    """Return the OpenAI API key from env or Streamlit secrets."""
+    return os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", "")
+
+
 def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float) -> str:
     """Return a short text explaining the brand/area match using OpenAI."""
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = _get_openai_key()
     if openai is None or not api_key:
         return ""
 
