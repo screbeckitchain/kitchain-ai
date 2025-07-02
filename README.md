@@ -53,11 +53,11 @@ calculating AOV and cuisine alignment. The relevant keys are:
 
 These keys are read by both the training scripts and the Streamlit app.
 
-When launching the Streamlit app you can choose **XGBoost** from the sidebar to
-use the new model instead of the bundled RandomForest model. This XGBoost model
-was trained only on the AOV alignment and cuisine match scores, so the
-application automatically limits the feature set to those two inputs whenever
-this option is selected.
+The Streamlit app now defaults to **XGBoost**, which relies on these feature
+weights. You can still select the original RandomForest model from the sidebar
+if desired. This XGBoost model was trained only on the AOV alignment and cuisine
+match scores, so the application automatically limits the feature set to those
+two inputs whenever this option is selected.
 
 ## Running the App
 
