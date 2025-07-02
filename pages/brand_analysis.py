@@ -20,10 +20,10 @@ APP_DIR = Path(__file__).resolve().parents[1]
 st.title("Brand Fit Across Areas")
 
 brand_file = st.sidebar.file_uploader(
-    "Upload Brands File", type=["csv", "xls", "xlsx"]
+    "Upload Brands File", type=["csv", "xls", "xlsx"], key="brand_file_upload"
 )
 area_file = st.sidebar.file_uploader(
-    "Upload Areas File", type=["csv", "xls", "xlsx"]
+    "Upload Areas File", type=["csv", "xls", "xlsx"], key="area_file_upload"
 )
 
 if brand_file is None:
