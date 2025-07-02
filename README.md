@@ -127,3 +127,10 @@ now explains why it is **not** a good match. The AOV difference is calculated as
 `abs(brand AOV - area AOV) / brand AOV` and the cuisine is compared against the
 area's top three cuisines. The prompt highlights whether a large AOV difference
 or a cuisine mismatch is the main reason for the low score.
+
+## Brand Analysis Page
+
+The sidebar includes a **Brand analysis** link that opens the `/brand_analysis`
+page. Upload a brands file (or use the bundled sample) then choose a brand from
+the dropdown to generate a short report describing its strengths and potential
+challenges.
