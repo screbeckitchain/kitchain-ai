@@ -327,7 +327,7 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
         area_row["Top3Cuisine"],
     )
 
-        formula_text = (
+    formula_text = (
         "Scores use weighted inputs: area AOV, order frequency, competition "
         "cuisines, brand AOV, aggregator position and monthly orders. The "
         "XGBoost model only uses AOV alignment and cuisine match. Values are "
