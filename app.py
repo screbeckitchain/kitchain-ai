@@ -307,13 +307,13 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
         st.error("The openai package is required for explanations.")
         return ""
     if not api_key:
-        return ""
-                global _warned_no_key
+        global _warned_no_key
         if not _warned_no_key:
             st.warning(
                 "OpenAI API key not configured; explanations are disabled."
             )
             _warned_no_key = True
+        return ""
 
     prompt = (
         "Brand: {brand} ({cuisine}) AOV {baov}. "
@@ -343,7 +343,7 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
-        )
+            )
     except Exception as exc:
         st.error(f"OpenAI request failed: {exc}")
         return ""
