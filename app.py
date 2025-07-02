@@ -99,7 +99,12 @@ model = load_model(use_xgb=model_choice == "XGBoost")
 
 st.sidebar.header("Explanations")
 explain = st.sidebar.checkbox("Generate explanations", value=False)
-top_n = st.sidebar.number_input("Top N results", 1, 20, 5)
+top_n = st.sidebar.number_input(
+    "Top N results",
+    min_value=1,
+    value=5,
+    step=1,
+)
 
 # === Upload data ===
 st.sidebar.header("Upload Your Data")
