@@ -68,7 +68,7 @@ conda activate kitchain-ai
 streamlit run app.py
 ```
 
-The results table now includes a **Score (%)** column where the top
+The results table shows only the **Score (%)** column where the top
 prediction is scaled to 100%.
 
 ## Input File Format
