@@ -376,7 +376,7 @@ results = pairs_df.copy()
 results["Score"] = preds
 results["Score (%)"] = (preds / max_score * 100).round(1)
 results.drop(columns=["Score"], inplace=True)
-results = results.sort_values("Score", ascending=False).reset_index(drop=True)
+results = results.sort_values("Score (%)", ascending=False).reset_index(drop=True)
 results["Explanation"] = ""
 
 if explain:
