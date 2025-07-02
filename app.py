@@ -402,7 +402,7 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
 brands_df, areas_df = get_data(brands_file, areas_file)
 
 # Allow user to choose specific brands
-all_brands = brands_df["Brand"].unique().tolist()
+all_brands = sorted(brands_df["Brand"].unique().tolist())
 selected_brands = st.sidebar.multiselect(
     "Select brands", options=all_brands, default=all_brands
 )
