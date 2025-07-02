@@ -112,3 +112,9 @@ streamlit run app.py
 Enable the **Generate explanations** option in the sidebar and choose how many
 top results to explain. The text is added to the **Explanation** column beneath
 each score.
+
+If the predicted score for a brand/area pair is below 60, the generated text
+now explains why it is **not** a good match. The AOV difference is calculated as
+`abs(brand AOV - area AOV) / brand AOV` and the cuisine is compared against the
+area's top three cuisines. The prompt highlights whether a large AOV difference
+or a cuisine mismatch is the main reason for the low score.
