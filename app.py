@@ -92,7 +92,7 @@ st.sidebar.header("Model")
 model_choice = st.sidebar.selectbox(
     "Choose model type",
     ["RandomForest", "XGBoost"],
-    index=0,
+    index=1,
 )
 
 model = load_model(use_xgb=model_choice == "XGBoost")
