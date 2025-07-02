@@ -386,3 +386,41 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
 
 # Load uploaded or sample data
 brands_df, areas_df = get_data(brands_file, areas_file)
+
+# Allow user to choose specific brands
+all_brands = brands_df["Brand"].unique().tolist()
+selected_brands = st.sidebar.multiselect(
+    "Select brands", options=all_brands, default=all_brands
+)
+if selected_brands:
+    brands_df = brands_df[brands_df["Brand"].isin(selected_brands)]
+
+# Build features and make predictions
+pairs_df, feature_df = build_features(
+    brands_df, areas_df, use_two_feature=model_choice == "XGBoost"
+)
+preds = model.predict(feature_df)
+max_score = preds.max()
+
+# Combine predictions with identifiers
+results = pairs_df.copy()
+results["Score"] = preds
+results["Score (%)"] = (preds / max_score * 100).round(1)
+results.drop(columns=["Score"], inplace=True)
+results = results.sort_values("Score (%)", ascending=False).reset_index(drop=True)
+results["Explanation"] = ""
+
+if explain:
+    top_slice = results.head(int(top_n))
+    for idx, row in top_slice.iterrows():
+        b_row = brands_df[brands_df["Brand"] == row["Brand"]].iloc[0]
+        a_row = areas_df[areas_df["Area"] == row["Area"]].iloc[0]
+        results.at[idx, "Explanation"] = generate_explanation(
+            b_row,
+            a_row,
+            row["Score (%)"],
+        )
+
+# Display output
+st.header("Top Matches")
+st.dataframe(results)
