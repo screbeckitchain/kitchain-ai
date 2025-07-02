@@ -300,10 +300,12 @@ def _get_openai_key() -> str:
 def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float) -> str:
     """Return a short text explaining the brand/area match using OpenAI."""
     api_key = _get_openai_key()
-    if openai is None or not api_key:
+    if openai is None:
+        st.error("The openai package is required for explanations.")
+        return ""
+    if not api_key:
         return ""
 
-    openai.api_key = api_key
     prompt = (
         "Brand: {brand} ({cuisine}) AOV {baov}. "
         "Area: {area} top cuisines {c1}, {c2}, {c3}. "
@@ -319,10 +321,18 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
         c3=area_row["Top3Cuisine"],
         score=score,
     )
-
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+        if hasattr(openai, "OpenAI"):
+            client = openai.OpenAI(api_key=api_key)
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+            )
+        else:
+            openai.api_key = api_key
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+            )
             messages=[{"role": "user", "content": prompt}],
         )
     except Exception as exc:
