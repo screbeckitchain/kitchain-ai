@@ -327,6 +327,13 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
         area_row["Top3Cuisine"],
     )
 
+        formula_text = (
+        "Scores use weighted inputs: area AOV, order frequency, competition "
+        "cuisines, brand AOV, aggregator position and monthly orders. The "
+        "XGBoost model only uses AOV alignment and cuisine match. Values are "
+        "scaled so the best match equals 100."
+    )
+
     if score < 60:
         if not cuisine_match:
             reason = "cuisine mismatch"
@@ -337,8 +344,8 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
         prompt = (
             "Brand: {brand} ({cuisine}) AOV {baov}. "
             "Area: {area} top cuisines {c1}, {c2}, {c3}. "
-            "Predicted score: {score:.1f}. "
-            "Explain in one sentence why this is not a good match due to {reason}."
+            "Predicted score: {score:.1f} (0-100). "
+            "{formula} Explain in one sentence why this is not a good match due to {reason}."
         ).format(
             brand=brand_row["Brand"],
             cuisine=brand_row["Cuisine"],
@@ -348,14 +355,15 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
             c2=area_row["Top2Cuisine"],
             c3=area_row["Top3Cuisine"],
             score=score,
+            formula=formula_text,
             reason=reason,
         )
     else:
         prompt = (
             "Brand: {brand} ({cuisine}) AOV {baov}. "
             "Area: {area} top cuisines {c1}, {c2}, {c3}. "
-            "Predicted score: {score:.1f}. "
-            "Explain in one sentence why this is a good match."
+            "Predicted score: {score:.1f} (0-100). "
+            "{formula} Explain in one sentence why this is a good match."
         ).format(
             brand=brand_row["Brand"],
             cuisine=brand_row["Cuisine"],
@@ -365,6 +373,7 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
             c2=area_row["Top2Cuisine"],
             c3=area_row["Top3Cuisine"],
             score=score,
+            formula=formula_text,
         )
     
     try:
