@@ -315,21 +315,52 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
             _warned_no_key = True
         return ""
 
-    prompt = (
-        "Brand: {brand} ({cuisine}) AOV {baov}. "
-        "Area: {area} top cuisines {c1}, {c2}, {c3}. "
-        "Predicted score: {score:.1f}. "
-        "Explain in one sentence why this is a good match."
-    ).format(
-        brand=brand_row["Brand"],
-        cuisine=brand_row["Cuisine"],
-        baov=brand_row["AOV"],
-        area=area_row["Area"],
-        c1=area_row["Top1Cuisine"],
-        c2=area_row["Top2Cuisine"],
-        c3=area_row["Top3Cuisine"],
-        score=score,
+    aov_diff = abs(brand_row["AOV"] - area_row["AOV_area"]) / brand_row["AOV"]
+    cuisine_match = brand_row["Cuisine"] in (
+        area_row["Top1Cuisine"],
+        area_row["Top2Cuisine"],
+        area_row["Top3Cuisine"],
     )
+
+    if score < 60:
+        if not cuisine_match:
+            reason = "cuisine mismatch"
+        elif aov_diff > 0.3:
+            reason = "high AOV difference"
+        else:
+            reason = "high AOV difference"
+        prompt = (
+            "Brand: {brand} ({cuisine}) AOV {baov}. "
+            "Area: {area} top cuisines {c1}, {c2}, {c3}. "
+            "Predicted score: {score:.1f}. "
+            "Explain in one sentence why this is not a good match due to {reason}."
+        ).format(
+            brand=brand_row["Brand"],
+            cuisine=brand_row["Cuisine"],
+            baov=brand_row["AOV"],
+            area=area_row["Area"],
+            c1=area_row["Top1Cuisine"],
+            c2=area_row["Top2Cuisine"],
+            c3=area_row["Top3Cuisine"],
+            score=score,
+            reason=reason,
+        )
+    else:
+        prompt = (
+            "Brand: {brand} ({cuisine}) AOV {baov}. "
+            "Area: {area} top cuisines {c1}, {c2}, {c3}. "
+            "Predicted score: {score:.1f}. "
+            "Explain in one sentence why this is a good match."
+        ).format(
+            brand=brand_row["Brand"],
+            cuisine=brand_row["Cuisine"],
+            baov=brand_row["AOV"],
+            area=area_row["Area"],
+            c1=area_row["Top1Cuisine"],
+            c2=area_row["Top2Cuisine"],
+            c3=area_row["Top3Cuisine"],
+            score=score,
+        )
     
     try:
         if hasattr(openai, "OpenAI"):
@@ -355,42 +386,3 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
 
 # Load uploaded or sample data
 brands_df, areas_df = get_data(brands_file, areas_file)
-
-# Allow user to choose specific brands
-all_brands = brands_df["Brand"].unique().tolist()
-selected_brands = st.sidebar.multiselect(
-    "Select brands", options=all_brands, default=all_brands
-)
-if selected_brands:
-    brands_df = brands_df[brands_df["Brand"].isin(selected_brands)]
-
-# Build features and make predictions
-pairs_df, feature_df = build_features(
-    brands_df, areas_df, use_two_feature=model_choice == "XGBoost"
-)
-preds = model.predict(feature_df)
-max_score = preds.max()
-
-# Combine predictions with identifiers
-results = pairs_df.copy()
-results["Score"] = preds
-results["Score (%)"] = (preds / max_score * 100).round(1)
-results.drop(columns=["Score"], inplace=True)
-results = results.sort_values("Score (%)", ascending=False).reset_index(drop=True)
-results["Explanation"] = ""
-
-if explain:
-    top_slice = results.head(int(top_n))
-    for idx, row in top_slice.iterrows():
-        b_row = brands_df[brands_df["Brand"] == row["Brand"]].iloc[0]
-        a_row = areas_df[areas_df["Area"] == row["Area"]].iloc[0]
-        results.at[idx, "Explanation"] = generate_explanation(
-            b_row,
-            a_row,
-            row["Score (%)"],
-        )
-
-# Display output
-st.header("Top Matches")
-st.dataframe(results)
-             
