@@ -99,8 +99,9 @@ Excel or CSV file that does not match these names will cause the app to stop.
 ## OpenAI Explanations (Optional)
 
 To generate short text explanations for the top matches the application
-uses the OpenAI ChatCompletion API. Set your API key in the
-`OPENAI_API_KEY` environment variable before launching Streamlit:
+uses the OpenAI ChatCompletion API. Set your API key either in the
+`OPENAI_API_KEY` environment variable or as `OPENAI_API_KEY` in Streamlit
+secrets before launching Streamlit:
 
 ```bash
 export OPENAI_API_KEY=sk-...
