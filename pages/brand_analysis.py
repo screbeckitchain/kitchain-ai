@@ -72,7 +72,7 @@ if brand_choice:
         )
 
     st.subheader("Area Fit Scores")
-    st.dataframe(results)
+    st.dataframe(results, use_container_width=True)
 
     st.subheader("Score by Area")
     chart_data = results.set_index("Area")["Score (%)"]
