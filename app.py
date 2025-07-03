@@ -360,7 +360,8 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
         elif aov_diff > 0.3:
             reason = "high AOV difference"
         else:
-            reason = "high AOV difference"
+            # AOV difference is small but the model predicted a low score
+            reason = "low predicted score"
         prompt = (
             "Brand: {brand} ({cuisine}) AOV {baov}. "
             "Area: {area} top cuisines {c1}, {c2}, {c3}. "
