@@ -12,6 +12,7 @@ from app import (
     _get_openai_key,
     build_features,
     load_model,
+    load_max_score,
     generate_explanation,
 )
 
@@ -56,7 +57,7 @@ if brand_choice:
         use_two_feature=model_choice == "XGBoost",
     )
     preds = model.predict(feature_df)
-    max_score = preds.max()
+    max_score = load_max_score()
 
     results = pairs_df.copy()
     results["Score (%)"] = (preds / max_score * 100).round(1)
