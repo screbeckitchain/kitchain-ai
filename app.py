@@ -422,13 +422,11 @@ def generate_explanation(brand_row: pd.Series, area_row: pd.Series, score: float
 # Load uploaded or sample data
 brands_df, areas_df = get_data(brands_file, areas_file)
 
-# Allow user to choose specific brands
+# Allow user to choose a single brand
 all_brands = sorted(brands_df["Brand"].unique().tolist())
-selected_brands = st.sidebar.multiselect(
-    "Select brands", options=all_brands, default=all_brands
-)
-if selected_brands:
-    brands_df = brands_df[brands_df["Brand"].isin(selected_brands)]
+selected_brand = st.sidebar.selectbox("Select brand", options=all_brands)
+if selected_brand:
+    brands_df = brands_df[brands_df["Brand"] == selected_brand]
 
 # Build features and make predictions
 pairs_df, feature_df = build_features(
