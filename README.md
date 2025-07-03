@@ -68,8 +68,8 @@ conda activate kitchain-ai
 streamlit run app.py
 ```
 
-The results table shows only the **Score (%)** column where the top
-prediction is scaled to 100%.
+The results table shows only the **Score (%)** column which is scaled
+against the maximum possible AOV and cuisine score.
 
 ## Score Calculation
 
@@ -77,8 +77,8 @@ Each prediction uses weighted features from both the brand and the area. The
 RandomForest model considers area AOV, order frequency, three competition
 cuisine scores, brand AOV, aggregator position and monthly orders. The
 simplified XGBoost variant looks only at AOV alignment and cuisine match. After
-the model outputs a raw value, the scores are normalized so that the highest
-prediction equals 100 and every other result is scaled relative to that value.
+the model outputs a raw value, the scores are normalized using the
+maximum achievable AOV/cuisine score rather than the best prediction
 
 ## Input File Format
 
