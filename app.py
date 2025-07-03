@@ -46,6 +46,22 @@ def load_weights(path: Path = WEIGHTS_FILE) -> dict:
     return {k: v / total for k, v in weights.items()}
 
 
+@st.cache_data
+def load_max_score(path: Path = WEIGHTS_FILE) -> float:
+    """Return the maximum possible combined AOV and cuisine score."""
+    df = pd.read_excel(path, header=None, names=["feature", "value"]).dropna()
+    df = df[df["feature"] != "Feature"]
+    weights = dict(zip(df["feature"], df["value"]))
+
+    max_aov = float(weights.get("AOV GRADE 1 Score", 0))
+    max_cuisine = float(weights.get("cuisine_match_score 1", 0))
+
+    aov_mult = float(weights.get("aov_alignment_score", 1))
+    cuisine_mult = float(weights.get("cuisine_match_score", 1))
+
+    return max_aov * aov_mult + max_cuisine * cuisine_mult
+
+
 @st.cache_resource
 def load_model(use_xgb: bool = False):
     """Load either the classic scikit-learn model or the XGBoost model."""
@@ -418,7 +434,7 @@ pairs_df, feature_df = build_features(
     brands_df, areas_df, use_two_feature=model_choice == "XGBoost"
 )
 preds = model.predict(feature_df)
-max_score = preds.max()
+max_score = load_max_score()
 
 # Combine predictions with identifiers
 results = pairs_df.copy()
