@@ -456,4 +456,4 @@ if explain:
 
 # Display output
 st.header("Top Matches")
-st.dataframe(results)
+st.dataframe(results, use_container_width=True)
