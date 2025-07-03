@@ -71,6 +71,9 @@ if brand_choice:
             results.at[idx, "Score (%)"],
         )
 
+        # Sort areas by descending score for easier analysis
+    results = results.sort_values(by="Score (%)", ascending=False, ignore_index=True)
+
     st.subheader("Area Fit Scores")
     st.dataframe(results, use_container_width=True)
 
