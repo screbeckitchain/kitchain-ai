@@ -456,4 +456,8 @@ if explain:
 
 # Display output
 st.header("Top Matches")
-st.dataframe(results, use_container_width=True)
+st.dataframe(
+    results,
+    use_container_width=True,
+    column_config={"Explanation": st.column_config.TextColumn(width="large")},
+)
