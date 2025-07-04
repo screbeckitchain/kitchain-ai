@@ -75,7 +75,11 @@ if brand_choice:
     results = results.sort_values(by="Score (%)", ascending=False, ignore_index=True)
 
     st.subheader("Area Fit Scores")
-    st.dataframe(results, use_container_width=True)
+    st.dataframe(
+        results,
+        use_container_width=True,
+        column_config={"Explanation": st.column_config.TextColumn(width="large")},
+    )
 
     st.subheader("Score by Area")
     chart_data = results.set_index("Area")["Score (%)"]
